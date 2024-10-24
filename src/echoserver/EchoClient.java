@@ -20,21 +20,43 @@ public class EchoClient {
             // connect to server
             Socket socket = new Socket(server, portNumber);
 
-            // Get the input stream so we can read from that socket
-            InputStream input = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            // get input from the user and set up output
+            InputStream userInput= System.in;
+            OutputStream out = socket.getOutputStream();
+            InputStream in = socket.getInputStream();
 
-            // Print all input received from server
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-            socket.close();
+        //     byte[] buffer = new byte[1024];
+        //     int bytesRead;
+            
+        //     while ((bytesRead = userInput.read(buffer)) != -1) {
+        //      //send user input to the sever
+        //      out.write(buffer, 0, bytesRead);
+        //      out.flush();
+
+        //      bytesRead = in.read(buffer);
+        //      System.out.write(buffer, 0, bytesRead);
+        // }
+
+                int data; 
+                while((data = userInput.read()) != -1) {
+                    // send user input to the server
+                    out.write(data);
+                    out.flush();
+
+                    // Read and print the server response
+                    int serverResponse = in.read();
+                    System.out.write(serverResponse);
+                    System.out.flush();
+                }
 
             // provide some minimal error handling
+            socket.close();
         } catch (ConnectException ce) {
             System.out.println("We were unable to connect to " + server);
             System.out.println("You should make sure the server is running.");
+        } catch (SocketException se) {
+            System.out.println("Connection was reset. Please check the server status.");
+            System.err.println(se);
         } catch (IOException ioe) {
             System.out.println("We caught an unexpected exception");
             System.err.println(ioe);
